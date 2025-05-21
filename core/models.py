@@ -132,6 +132,15 @@ class SaleProduct(models.Model):
         return f"{self.sale} - {self.product}"
 
 
+class SoldProduct(models.Model):
+    sale = models.ForeignKey(Sale, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    value = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self) -> str:
+        return f"{self.product} - {self.value} - {self.sale}"
+
+
 class Billing(models.Model):
     sale = models.ForeignKey(Sale, on_delete=models.CASCADE)
     total_value = models.FloatField()
@@ -151,12 +160,3 @@ class Payment(models.Model):
 
     def __str__(self) -> str:
         return f"{self.billing}"
-
-
-class SoldProduct(models.Model):
-    sale = models.ForeignKey(Sale, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    value = models.DecimalField(max_digits=10, decimal_places=2)
-
-    def __str__(self) -> str:
-        return f"{self.product} - {self.value} - {self.sale}"
