@@ -21,3 +21,15 @@ Caso esteja usando o Neovim, o lsp terá problemas em visualizar alguns tipos do
 ```bash
 pip install django-stubs
 ```
+
+## Como popular o banco de dados
+Para colocar dados falsos para testes, execute o seguinte comando na raiz do projeto:
+```bash
+python3 manage.py shell < create_db.py
+```
+
+Caso dê algum erro, provavelmente já tinham coisas no banco, e alguma chave estrangeira deu conflito, execute na raíz:
+```bash
+python3 manage.py shell < clean_db.py
+```
+Como o nome sugere, isso limpa o banco de dados, execute novamente o comando de popular e deve funcionar sem mais problemas.
