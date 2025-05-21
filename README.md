@@ -25,7 +25,7 @@ pip install django-stubs
 ## Como popular o banco de dados
 Para colocar dados falsos para testes, execute o seguinte comando na raiz do projeto:
 ```bash
-python3 manage.py shell < create_db.py
+python3 manage.py shell < populate_db.py
 ```
 
 Caso dê algum erro, provavelmente já tinham coisas no banco, e alguma chave estrangeira deu conflito, execute na raíz:
