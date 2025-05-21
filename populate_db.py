@@ -1,58 +1,169 @@
-from core.models import State, City, Neighborhood, Address, UserType, User, Category, Color, Metric, Product, Sale, SoldProduct
-from django.utils import timezone
-from random import choice, randint
-from decimal import Decimal
+import random
+from datetime import date, timedelta
+from core.models import (
+    State,
+    City,
+    Neighborhood,
+    Address,
+    UserType,
+    User,
+    Consortium,
+    ConsortiumParticipation,
+    Category,
+    Color,
+    Metric,
+    Capacity,
+    Product,
+    Sale,
+    SaleProduct,
+    Billing,
+    Payment,
+    SoldProduct,
+)
 
-# Estados e Cidades
-rn = State.objects.create(name="Rio Grande do Norte")
-sp = State.objects.create(name="São Paulo")
+# STATES
+states = [State.objects.create(name=n) for n in ["RN", "PB", "PE", "CE", "BA"]]
 
-natal = City.objects.create(name="Natal", state=rn)
-serra_negra = City.objects.create(name="Serra Negra do Norte", state=rn)
-sao_paulo = City.objects.create(name="São Paulo", state=sp)
+# CITIES
+cities = []
+for state in states:
+    for name in ["Natal", "Mossoró", "Caicó"]:
+        cities.append(City.objects.create(name=f"{name}-{state.name}", state=state))
 
-# Bairros
-bairro1 = Neighborhood.objects.create(name="Centro", city=natal)
-bairro2 = Neighborhood.objects.create(name="Zona Norte", city=natal)
-bairro3 = Neighborhood.objects.create(name="Zona Rural", city=serra_negra)
+# NEIGHBORHOODS
+neighborhoods = []
+for city in cities:
+    for name in ["Centro", "Zona Norte", "Zona Sul"]:
+        neighborhoods.append(
+            Neighborhood.objects.create(name=f"{name} {city.name}", city=city)
+        )
 
-# Endereços
-end1 = Address.objects.create(number=123, address_line="Ap 101", street="Rua das Flores", neighborhood=bairro1)
-end2 = Address.objects.create(number=456, address_line="Casa", street="Av. Brasil", neighborhood=bairro2)
-end3 = Address.objects.create(number=789, address_line="Bloco C", street="Rua Principal", neighborhood=bairro3)
+# ADDRESSES
+addresses = []
+for i in range(20):
+    addresses.append(
+        Address.objects.create(
+            number=100 + i,
+            address_line=f"Apto {i+1}",
+            street=f"Rua {chr(65+i)}",
+            neighborhood=random.choice(neighborhoods),
+        )
+    )
 
-# Tipos de usuário
-cliente = UserType.objects.create(type="Cliente")
-vendedor = UserType.objects.create(type="Vendedor")
+# USER TYPES
+user_types = [
+    UserType.objects.create(type=t)
+    for t in ["Cliente", "Admin", "Vendedor", "Gerente", "Outro"]
+]
 
-# Usuários
-u1 = User.objects.create(user_type=cliente, name="João Silva", email="joao@email.com", phone="84999999999", address=end1, password="senha123")
-u2 = User.objects.create(user_type=cliente, name="Maria Souza", email="maria@email.com", phone="84988888888", address=end2, password="senha456")
-u3 = User.objects.create(user_type=vendedor, name="Carlos Lima", email="carlos@email.com", phone="84977777777", address=end3, password="senha789")
+# USERS
+users = []
+for i in range(20):
+    users.append(
+        User.objects.create(
+            user_type=random.choice(user_types),
+            name=f"Usuário {i+1}",
+            email=f"user{i+1}@exemplo.com",
+            phone=f"849999900{i:02}",
+            address=random.choice(addresses),
+            password="senha123",
+        )
+    )
 
-# Categorias
-cat1 = Category.objects.create(name="Bebidas")
-cat2 = Category.objects.create(name="Alimentos")
+# CONSORTIUMS
+consortiums = []
+for i in range(5):
+    start = date.today() - timedelta(days=365)
+    end = date.today() + timedelta(days=365)
+    consortiums.append(
+        Consortium.objects.create(
+            name=f"Consórcio {i+1}", start_date=start, end_date=end
+        )
+    )
 
-# Cores
-cor1 = Color.objects.create(name="Vermelho")
-cor2 = Color.objects.create(name="Azul")
-cor3 = Color.objects.create(name="Verde")
+# PARTICIPAÇÕES
+for cons in consortiums:
+    participantes = random.sample(users, 5)
+    sorteado = random.choice(participantes)
+    for p in participantes:
+        ConsortiumParticipation.objects.create(
+            consortium=cons, client=p, draw_date=date.today(), drawn_client=sorteado
+        )
 
-# Métricas
-m1 = Metric.objects.create(name="Litros")
-m2 = Metric.objects.create(name="Quilos")
+# CATEGORIAS, CORES, MÉTRICAS
+categorias = [
+    Category.objects.create(name=n)
+    for n in ["Eletrodoméstico", "Móvel", "Eletrônico", "Veículo", "Outros"]
+]
+cores = [
+    Color.objects.create(name=n)
+    for n in ["Branco", "Preto", "Azul", "Vermelho", "Cinza"]
+]
+metricas = [
+    Metric.objects.create(name=n) for n in ["Litros", "Kg", "Unidades", "m²", "cm³"]
+]
 
-# Produtos
-prod1 = Product.objects.create(name="Coca-Cola", category=cat1, color=cor1, metric=m1, capacity=2)
-prod2 = Product.objects.create(name="Feijão", category=cat2, color=cor3, metric=m2, capacity=1)
-prod3 = Product.objects.create(name="Guaraná", category=cat1, color=cor2, metric=m1, capacity=1)
+# CAPACIDADES
+capacidades = []
+for i in range(5):
+    capacidades.append(
+        Capacity.objects.create(
+            quantity=(i + 1) * 10, unit_of_measure=random.choice(["L", "kg", "un"])
+        )
+    )
 
-# Vendas
-venda1 = Sale.objects.create(customer=u1, on_create=timezone.now(), installments=3)
-venda2 = Sale.objects.create(customer=u2, on_create=timezone.now(), installments=1)
+# PRODUTOS
+produtos = []
+for i in range(10):
+    produtos.append(
+        Product.objects.create(
+            name=f"Produto {i+1}",
+            category=random.choice(categorias),
+            color=random.choice(cores),
+            capacity=random.choice(capacidades),
+        )
+    )
 
-# Produtos vendidos
-SoldProduct.objects.create(sale=venda1, product=prod1, value=Decimal("8.50"))
-SoldProduct.objects.create(sale=venda1, product=prod2, value=Decimal("5.00"))
-SoldProduct.objects.create(sale=venda2, product=prod3, value=Decimal("6.75"))
+# VENDAS
+vendas = []
+for i in range(10):
+    vendas.append(
+        Sale.objects.create(
+            customer=random.choice(users),
+            installments_quantity=random.choice([1, 3, 6, 12]),
+        )
+    )
+
+# VENDA-PRODUTOS e PRODUTOS-VENDIDOS
+for venda in vendas:
+    produtos_vendidos = random.sample(produtos, 2)
+    for prod in produtos_vendidos:
+        SaleProduct.objects.create(sale=venda, product=prod)
+        SoldProduct.objects.create(
+            sale=venda, product=prod, value=random.uniform(100.0, 1000.0)
+        )
+
+# FATURAS
+faturas = []
+for venda in vendas:
+    valor_total = random.uniform(200.0, 2000.0)
+    data_fatura = date.today()
+    vencimento = data_fatura + timedelta(days=30)
+    faturas.append(
+        Billing.objects.create(
+            sale=venda,
+            total_value=valor_total,
+            billing_date=data_fatura,
+            due_date=vencimento,
+        )
+    )
+
+# PAGAMENTOS
+for fatura in faturas:
+    Payment.objects.create(
+        amount_paid=fatura.total_value - 10,
+        payment_date=fatura.billing_date + timedelta(days=10),
+        payment_method="Pix",
+        discount=10.0,
+        billing=fatura,
+    )
