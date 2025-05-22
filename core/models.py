@@ -47,10 +47,33 @@ class User(models.Model):
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=11)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
-    password = models.TextField()
+    password = models.CharField(max_length=128)
 
     def __str__(self) -> str:
         return str(self.name)
+
+
+class Consortium(models.Model):
+    name = models.CharField(max_length=100)
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    def __str__(self) -> str:
+        return f"{self.name} - {self.start_date} - {self.end_date}"
+
+
+class ConsortiumParticipation(models.Model):
+    consortium = models.ForeignKey(Consortium, on_delete=models.CASCADE)
+    client = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="participations"
+    )
+    draw_date = models.DateField()
+    drawn_client = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="drawn_participations"
+    )
+
+    def __str__(self) -> str:
+        return f"{self.consortium} - {self.client}"
 
 
 class Category(models.Model):
@@ -74,12 +97,19 @@ class Metric(models.Model):
         return str(self.name)
 
 
+class Capacity(models.Model):
+    quantity = models.IntegerField()
+    unit_of_measure = models.CharField(max_length=50)
+
+    def __str__(self) -> str:
+        return f"{self.quantity} - {self.unit_of_measure}"
+
+
 class Product(models.Model):
     name = models.CharField(max_length=100)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     color = models.ForeignKey(Color, on_delete=models.CASCADE)
-    metric = models.ForeignKey(Metric, on_delete=models.CASCADE)
-    capacity = models.PositiveSmallIntegerField()
+    capacity = models.ForeignKey(Capacity, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
         return str(self.name)
@@ -87,11 +117,19 @@ class Product(models.Model):
 
 class Sale(models.Model):
     customer = models.ForeignKey(User, on_delete=models.CASCADE)
-    on_create = models.DateTimeField(auto_now_add=True)
-    installments = models.PositiveSmallIntegerField()
+    sale_date = models.DateTimeField(auto_now_add=True)
+    installments_quantity = models.PositiveSmallIntegerField()
 
     def __str__(self) -> str:
-        return f"{self.customer.name} - {self.installments} - {self.on_create}"
+        return f"{self.customer.name} - {self.installments_quantity} - {self.sale_date}"
+
+
+class SaleProduct(models.Model):
+    sale = models.ForeignKey(Sale, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return f"{self.sale} - {self.product}"
 
 
 class SoldProduct(models.Model):
@@ -101,3 +139,24 @@ class SoldProduct(models.Model):
 
     def __str__(self) -> str:
         return f"{self.product} - {self.value} - {self.sale}"
+
+
+class Billing(models.Model):
+    sale = models.ForeignKey(Sale, on_delete=models.CASCADE)
+    total_value = models.FloatField()
+    billing_date = models.DateField()
+    due_date = models.DateField()
+
+    def __str__(self) -> str:
+        return f"{self.sale}"
+
+
+class Payment(models.Model):
+    amount_paid = models.FloatField()
+    payment_date = models.DateField()
+    payment_method = models.CharField(max_length=50)
+    discount = models.FloatField()
+    billing = models.ForeignKey(Billing, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return f"{self.billing}"
