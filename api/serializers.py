@@ -82,11 +82,6 @@ class MetricSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class CapacitySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Capacity
-        fields = "__all__"
-
 
 class ProductSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)

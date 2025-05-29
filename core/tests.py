@@ -130,7 +130,7 @@ class SaleModelTest(TestCase):
         )
 
     def test_str(self):
-        sale = Sale.objects.create(customer=self.user, installments=3)
+        sale = Sale.objects.create(customer=self.user, installments_quantity=3)
         self.assertIn("Maria Oliveira", str(sale))
         self.assertIn("3", str(sale))
 
@@ -166,7 +166,7 @@ class SoldProductModelTest(TestCase):
             address=address,
             password="senha789"
         )
-        sale = Sale.objects.create(customer=user, installments=1)
+        sale = Sale.objects.create(customer=user, installments_quantity=1)
         sold_product = SoldProduct.objects.create(
             sale=sale, product=product, value=49.90
         )
