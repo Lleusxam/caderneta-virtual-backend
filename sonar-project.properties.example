@@ -1,0 +1,23 @@
+# Informações básicas
+sonar.projectKey=caderneta-virtual
+sonar.projectName=Cadenerta Virtual Backend
+sonar.projectVersion=1.0
+
+sonar.token=seu_token_aqui
+
+# Diretório do código-fonte
+sonar.sources=.
+
+# Diretórios a serem ignorados
+sonar.exclusions=**/migrations/**, **/__pycache__/**, **/static/**, **/media/**
+
+# Linguagem principal
+sonar.language=py
+
+# Testes e cobertura
+sonar.tests=./core
+sonar.test.inclusions=**/tests.py, **/tests/**/*.py
+sonar.python.coverage.reportPaths=coverage.xml
+
+# Configurações adicionais
+sonar.sourceEncoding=UTF-8

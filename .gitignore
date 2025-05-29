@@ -1,5 +1,10 @@
 # Created by https://www.toptal.com/developers/gitignore/api/django
 # Edit at https://www.toptal.com/developers/gitignore?templates=django
+### Sonar ###
+# SonarQube scanner for Python
+# https://docs.sonarqube.org/latest/analysis/languages/python/
+sonar-project.properties
+.scannerwork
 
 ### Django ###
 *.log
