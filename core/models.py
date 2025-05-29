@@ -1,6 +1,5 @@
 from django.db import models
 
-
 class State(models.Model):
     name = models.CharField(max_length=100)
 
@@ -97,19 +96,12 @@ class Metric(models.Model):
         return str(self.name)
 
 
-class Capacity(models.Model):
-    quantity = models.IntegerField()
-    unit_of_measure = models.CharField(max_length=50)
-
-    def __str__(self) -> str:
-        return f"{self.quantity} - {self.unit_of_measure}"
-
-
 class Product(models.Model):
     name = models.CharField(max_length=100)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     color = models.ForeignKey(Color, on_delete=models.CASCADE)
-    capacity = models.ForeignKey(Capacity, on_delete=models.CASCADE)
+    capacity = models.FloatField()    
+    metric = models.ForeignKey(Metric, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
         return str(self.name)
@@ -137,8 +129,8 @@ class SoldProduct(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     value = models.DecimalField(max_digits=10, decimal_places=2)
 
-    def __str__(self) -> str:
-        return f"{self.product} - {self.value} - {self.sale}"
+    def __str__(self) -> str:        
+        return f"{self.product} - {self.value:.2f} - {self.sale}"
 
 
 class Billing(models.Model):
