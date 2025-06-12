@@ -40,6 +40,17 @@ jobs:
           coverage run --source='.' manage.py test
           coverage xml
 
+      - name: Check SONAR_TOKEN availability
+        run: |
+          if [ -z "$SONAR_TOKEN" ]; then
+            echo "ERROR: SONAR_TOKEN is NOT set"
+            exit 1
+          else
+            echo "SONAR_TOKEN is set"
+          fi
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
       - name: Analyze with SonarQube
         uses: SonarSource/sonarqube-scan-action@v1.1.0
         env:
