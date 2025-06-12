@@ -60,27 +60,14 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Download SonarScanner CLI
-        run: |
-          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
-          unzip sonar-scanner-cli-4.8.0.2856-linux.zip
-          rm sonar-scanner-cli-4.8.0.2856-linux.zip
-
-      - name: Check Java version
-        run: java -version
-        env:
-          JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.15-6/x64
-          PATH: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.15-6/x64/bin:${{ env.PATH }}
-
       - name: Run SonarScanner with debug logs
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          args: >
+            -Dsonar.projectKey=caderneta-virtual-backend
+            -Dsonar.sources=.
+            -Dsonar.host.url=https://labens.dct.ufrn.br/sonarqube
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -X
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.15-6/x64
-          PATH: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.15-6/x64/bin:${{ env.PATH }}
-        run: |
-          ./sonar-scanner-4.8.0.2856-linux/bin/sonar-scanner \
-            -Dsonar.projectKey=caderneta-virtual-backend \
-            -Dsonar.sources=. \
-            -Dsonar.host.url=https://labens.dct.ufrn.br/sonarqube \
-            -Dsonar.login=$SONAR_TOKEN \
-            -X
