@@ -69,6 +69,7 @@ jobs:
             -Dsonar.host.url=https://labens.dct.ufrn.br/sonarqube
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
             -Dsonar.python.coverage.reportPaths=coverage.xml
+            -Dsonar.exclusions=clean_db.py,populate_db.py
             -X
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
