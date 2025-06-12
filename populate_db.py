@@ -12,7 +12,6 @@ from core.models import (
     Category,
     Color,
     Metric,
-    Capacity,
     Product,
     Sale,
     SaleProduct,
@@ -103,15 +102,6 @@ metricas = [
     Metric.objects.create(name=n) for n in ["Litros", "Kg", "Unidades", "m²", "cm³"]
 ]
 
-# CAPACIDADES
-capacidades = []
-for i in range(5):
-    capacidades.append(
-        Capacity.objects.create(
-            quantity=(i + 1) * 10, unit_of_measure=random.choice(["L", "kg", "un"])
-        )
-    )
-
 # PRODUTOS
 produtos = []
 for i in range(10):
@@ -120,7 +110,8 @@ for i in range(10):
             name=f"Produto {i+1}",
             category=random.choice(categorias),
             color=random.choice(cores),
-            capacity=random.choice(capacidades),
+            capacity=(i + 1) * 10,
+            metric_id=random.choice(metricas).id
         )
     )
 
