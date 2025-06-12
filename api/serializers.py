@@ -92,6 +92,10 @@ class ProductSerializer(serializers.ModelSerializer):
     color_id = serializers.PrimaryKeyRelatedField(
         queryset=Color.objects.all(), source="color", write_only=True
     )  # Aceita o ID de Color para criação
+    metric = MetricSerializer(read_only=True)
+    metric_id = serializers.PrimaryKeyRelatedField(
+        queryset=Metric.objects.all(), source="metric", write_only=True
+    )  # Aceita o ID de Metric para criação
 
     class Meta:
         model = Product
