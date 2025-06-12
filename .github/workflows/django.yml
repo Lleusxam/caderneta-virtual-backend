@@ -68,6 +68,7 @@ jobs:
             -Dsonar.sources=.
             -Dsonar.host.url=https://labens.dct.ufrn.br/sonarqube
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.python.coverage.reportPaths=coverage.xml
             -X
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
