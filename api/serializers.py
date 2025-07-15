@@ -103,9 +103,47 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class SaleSerializer(serializers.ModelSerializer):
+    customer = UserSerializer(read_only=True)
+    customer_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), source="customer", write_only=True
+    )
+
+    #sold_products = UserSerializer(read_only=True)
+
+    
+    # recebe só os IDs na criação/edição
+    sold_products = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Product.objects.all(),
+        source="soldproduct_set",        
+    )
+
     class Meta:
         model = Sale
-        fields = "__all__"
+        fields = "__all__"          # não inclui sold_products aqui
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+
+        # devolve os produtos já serializados
+        rep["sold_products"] = SoldProductSerializer(
+            instance.sold_products.all(), many=True
+        ).data
+        return rep
+
+    def create(self, validated_data):
+        sold_products = validated_data.pop("sold_products", [])
+        sale = super().create(validated_data)
+        sale.sold_products.set(sold_products)
+        return sale
+
+    def update(self, instance, validated_data):
+        sold_products = validated_data.pop("sold_products", None)
+        sale = super().update(instance, validated_data)
+        if sold_products is not None:
+            sale.sold_products.set(sold_products)
+        return sale
+
 
 
 class SoldProductSerializer(serializers.ModelSerializer):
