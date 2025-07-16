@@ -86,7 +86,7 @@ for cons in consortiums:
     sorteado = random.choice(participantes)
     for p in participantes:
         ConsortiumParticipation.objects.create(
-            consortium=cons, client=p, draw_date=date.today(), drawn_client=sorteado
+            consortium=cons, client=p, draw_date=date.today()
         )
 
 # CATEGORIAS, CORES, MÉTRICAS
@@ -111,28 +111,34 @@ for i in range(10):
             category=random.choice(categorias),
             color=random.choice(cores),
             capacity=(i + 1) * 10,
-            metric_id=random.choice(metricas).id
+            metric=random.choice(metricas),
+            price=random.uniform(1.0, 100.0)
         )
     )
 
 # VENDAS
 vendas = []
 for i in range(10):
-    vendas.append(
-        Sale.objects.create(
-            customer=random.choice(users),
-            installments_quantity=random.choice([1, 3, 6, 12]),
-        )
+    sale_instance = Sale.objects.create(
+        customer=random.choice(users),
+        installments_quantity=random.choice([1, 3, 6, 12]),
     )
+    vendas.append(sale_instance)
+
+    num_products_in_sale = random.randint(1, 3)
+    selected_products = random.sample(produtos, min(num_products_in_sale, len(produtos)))
+
+    for product in selected_products:
+        SoldProduct.objects.create(
+            sale=sale_instance,
+            product=product,
+        )
 
 # VENDA-PRODUTOS e PRODUTOS-VENDIDOS
 for venda in vendas:
     produtos_vendidos = random.sample(produtos, 2)
     for prod in produtos_vendidos:
         SaleProduct.objects.create(sale=venda, product=prod)
-        SoldProduct.objects.create(
-            sale=venda, product=prod, value=random.uniform(100.0, 1000.0)
-        )
 
 # FATURAS
 faturas = []
