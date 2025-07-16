@@ -82,7 +82,6 @@ class MetricSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-
 class ProductSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(
@@ -102,48 +101,58 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class SoldProductReadSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+
+    class Meta:
+        model = SoldProduct
+        fields = ("product",)
+
+
 class SaleSerializer(serializers.ModelSerializer):
     customer = UserSerializer(read_only=True)
     customer_id = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(), source="customer", write_only=True
     )
 
-    #sold_products = UserSerializer(read_only=True)
-
-    
-    # recebe só os IDs na criação/edição
-    sold_products = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=Product.objects.all(),
-        source="soldproduct_set",        
+    sold_products = SoldProductReadSerializer(
+        source="soldproduct_set", many=True, read_only=True
     )
 
-    class Meta:
-        model = Sale
-        fields = "__all__"          # não inclui sold_products aqui
-
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-
-        # devolve os produtos já serializados
-        rep["sold_products"] = SoldProductSerializer(
-            instance.sold_products.all(), many=True
-        ).data
-        return rep
+    sold_products_ids = serializers.ListField(
+        child=serializers.PrimaryKeyRelatedField(queryset=Product.objects.all()),
+        write_only=True,
+    )
 
     def create(self, validated_data):
-        sold_products = validated_data.pop("sold_products", [])
-        sale = super().create(validated_data)
-        sale.sold_products.set(sold_products)
+        products_ids = validated_data.pop("sold_products_ids", [])
+
+        sale = Sale.objects.create(**validated_data)
+
+        for product_instance in products_ids:
+            SoldProduct.objects.create(sale=sale, product=product_instance)
         return sale
 
     def update(self, instance, validated_data):
-        sold_products = validated_data.pop("sold_products", None)
-        sale = super().update(instance, validated_data)
-        if sold_products is not None:
-            sale.sold_products.set(sold_products)
-        return sale
+        product_ids_for_sale = validated_data.pop("sold_products_ids", None)
 
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if product_ids_for_sale is not None:
+            instance.soldproduct_set.all().delete()
+
+            for product_instance in product_ids_for_sale:
+                SoldProduct.objects.create(
+                    sale=instance,
+                    product=product_instance,
+                )
+        return instance
+
+    class Meta:
+        model = Sale
+        fields = "__all__"
 
 
 class SoldProductSerializer(serializers.ModelSerializer):

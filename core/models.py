@@ -129,7 +129,7 @@ class SoldProduct(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
     def __str__(self) -> str:        
-        return f"{self.product} - {self.value:.2f} - {self.sale}"
+        return f"{self.product} - {self.sale}"
 
 
 class Billing(models.Model):
