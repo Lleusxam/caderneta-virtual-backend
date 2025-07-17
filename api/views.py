@@ -21,10 +21,8 @@ class LoginView(APIView):
         token, created = AuthToken.objects.get_or_create(user=user)
 
         return Response({
-            "message": "Login successful",
             "token": token.key,
-            "user_id": user.id,
-            "user_email": user.email,
+            "user_name": user.name,
         }, status=status.HTTP_200_OK)
 
 # State
