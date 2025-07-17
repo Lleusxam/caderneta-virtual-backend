@@ -3,6 +3,9 @@ from . import views
 
 
 urlpatterns = [
+    #Login
+    path('login/', views.LoginView.as_view(), name='login'),
+
     # State
     path("states/", views.StateList.as_view(), name="state-list"),
     path("states/<int:pk>/", views.StateDetail.as_view(), name="state-detail"),

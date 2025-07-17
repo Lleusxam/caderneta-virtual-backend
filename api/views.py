@@ -1,7 +1,31 @@
-from rest_framework import generics
-from core.models import State
+from rest_framework import generics, status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from core.models import State, AuthToken
 from .serializers import *
 
+
+#Login
+# your_app_name/views.py
+
+class LoginView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request, *args, **kwargs):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+
+        # Get or create a token for the user
+        token, created = AuthToken.objects.get_or_create(user=user)
+
+        return Response({
+            "message": "Login successful",
+            "token": token.key,
+            "user_id": user.id,
+            "user_email": user.email,
+        }, status=status.HTTP_200_OK)
 
 # State
 class StateList(generics.ListCreateAPIView):

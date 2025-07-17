@@ -2,6 +2,28 @@ from rest_framework import serializers
 from core.models import *
 
 
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        email = attrs.get("email")
+        password = attrs.get("password")
+
+        if email and password:
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                raise serializers.ValidationError("Invalid credentials.")
+
+            if user.password != password:
+                raise serializers.ValidationError("Invalid credentials.")
+
+            attrs["user"] = user
+            return attrs
+        raise serializers.ValidationError("Must include 'email' and 'password'.")
+
+
 class StateSerializer(serializers.ModelSerializer):
     class Meta:
         model = State
