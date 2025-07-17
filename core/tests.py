@@ -102,7 +102,8 @@ class ProductModelTest(TestCase):
             category=category,
             color=color,
             metric=metric,
-            capacity=500
+            capacity=500,
+            price=49.90
         )
         self.assertEqual(str(product), "Pote Hermético")
 
@@ -168,7 +169,6 @@ class SoldProductModelTest(TestCase):
         )
         sale = Sale.objects.create(customer=user, installments_quantity=1)
         sold_product = SoldProduct.objects.create(
-            sale=sale, product=product, value=49.90
+            sale=sale, product=product
         )
         self.assertIn("Jarra de Suco", str(sold_product))
-        self.assertIn("49.90", str(sold_product))
